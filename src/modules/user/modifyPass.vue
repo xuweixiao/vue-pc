@@ -6,8 +6,8 @@
     <div class="main-container-content">
       <div class="login-form-container">
         <el-form
-          ref="form"
           v-loading="loading"
+          ref="form"
           :rules="rules"
           :model="form"
           status-icon

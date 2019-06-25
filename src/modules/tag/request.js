@@ -1,4 +1,4 @@
-import {get, post, form} from '@/common/net/serviceUtil'
+import { get, post, form } from '@/common/net/serviceUtil'
 
 /**
  * 标注列表
@@ -7,7 +7,7 @@ import {get, post, form} from '@/common/net/serviceUtil'
  *
  * @returns {Promise}
  */
-export function tagList (params) {
+export function tagList(params) {
   return get('/label/list', params)
 }
 
@@ -17,7 +17,7 @@ export function tagList (params) {
  *
  * @returns {Promise}
  */
-export function tagDetail (params) {
+export function tagDetail(params) {
   return post('/label/detail', params)
 }
 
@@ -28,7 +28,7 @@ export function tagDetail (params) {
  *
  * @returns {Promise}
  */
-export function saveTag (params) {
+export function saveTag(params) {
   return post('/label/sheet', params)
 }
 
@@ -38,6 +38,6 @@ export function saveTag (params) {
  *
  * @returns {Promise}
  */
-export function upImage (params) {
+export function upImage(params) {
   return form('/label/uploadSheet', params)
 }

@@ -1,13 +1,13 @@
 <template>
-    <footer class="foot">
-        <span>Copyright©一座岛</span>
-    </footer>
+  <footer class="foot">
+    <span>Copyright©一座岛</span>
+  </footer>
 </template>
 
 <script>
 
 export default {
-  data () {
+  data() {
     return {
 
     }

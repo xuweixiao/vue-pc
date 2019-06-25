@@ -15,20 +15,20 @@
 const minHeight = 300
 
 export default {
-  data () {
+  data() {
     return {
       screenHeight: 350,
       height: 0
     }
   },
-  created () {
+  created() {
     this.$nextTick(() => {
       this.calcHeight()
       window.addEventListener('resize', this.calcHeight)
     })
   },
   methods: {
-    getClientHeight () {
+    getClientHeight() {
       let clientHeight = 0
       if (document.body.clientHeight && document.documentElement.clientHeight) {
         clientHeight = (document.body.clientHeight < document.documentElement.clientHeight) ? document.body.clientHeight : document.documentElement.clientHeight
@@ -37,14 +37,14 @@ export default {
       }
       return clientHeight
     },
-    calcHeight () {
+    calcHeight() {
       setTimeout(() => {
         this.screenHeight = (this.getClientHeight() - this.height) <= minHeight ? minHeight : (this.getClientHeight() - this.height)
         this.screenHeight = this.screenHeight// todo 为了测试
       })
     }
   },
-  beforeDestroy () {
+  beforeDestroy() {
     window.removeEventListener('resize', this.calcHeight)
   }
 }

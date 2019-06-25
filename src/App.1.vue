@@ -1,13 +1,13 @@
 <template>
   <div id="app">
     <template v-if="($route.path !== '/login') && ($route.path !== '/')">
-      <top-bar></top-bar>
-      <side-bar></side-bar>
+      <top-bar/>
+      <side-bar/>
     </template>
     <section class="main">
-        <transition name="fade-transform" mode=out-in>
-            <router-view/>
-        </transition>
+      <transition name="fade-transform" mode="out-in">
+        <router-view/>
+      </transition>
     </section>
   </div>
 </template>
@@ -17,8 +17,8 @@ import TopBar from '@/common/components/TopBar.vue'
 import SideBar from '@/common/components/SideBar.vue'
 
 export default {
-  components: {TopBar, SideBar},
-  name: 'App'
+  name: 'App',
+  components: { TopBar, SideBar }
 }
 </script>
 

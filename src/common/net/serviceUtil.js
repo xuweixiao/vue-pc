@@ -5,7 +5,7 @@
 
 import axios from 'axios'
 import router from '@/router/index.js'
-let querystring = require('querystring')
+const querystring = require('querystring')
 
 axios.defaults.baseURL = 'http://139.129.205.233:17676'
 
@@ -37,8 +37,8 @@ axios.interceptors.response.use(response => {
  * @param {string} url 请求url
  * @param {Object} data 请求参数
  */
-export function get (url, data = {}) {
-  return axios.get(url, {params: data})
+export function get(url, data = {}) {
+  return axios.get(url, { params: data })
 }
 
 /**
@@ -46,7 +46,7 @@ export function get (url, data = {}) {
  * @param {string} url 请求url
  * @param {Object} data 请求参数
  */
-export function post (url, data = {}) {
+export function post(url, data = {}) {
   return axios.post(url, querystring.stringify(data))
 }
 
@@ -55,7 +55,7 @@ export function post (url, data = {}) {
  * @param {string} url 请求url
  * @param {Object} data 请求参数
  */
-export function postWithJson (url, data = {}) {
+export function postWithJson(url, data = {}) {
   return axios.post(url, data)
 }
 
@@ -66,7 +66,7 @@ export function postWithJson (url, data = {}) {
  * @param {Object} data 发送的数据
  * @return {Promise}
  */
-export function form (url, data = {}) {
+export function form(url, data = {}) {
   return axios.post(url,
     data,
     {

@@ -1,42 +1,42 @@
 <template>
-    <div class="login-container" v-loading="loading">
-        <div class="footer"></div>
-        <div class="content">
-            <div class="login-form-container">
-                <el-form
-                    ref="form"
-                    :rules="rules"
-                    status-icon
-                    label-width="0"
-                    :model="form">
-                    <el-form-item>
-                        <h2 class="title">通用平台</h2>
-                    </el-form-item>
-                    <el-form-item  prop="username">
-                        <el-input
-                            type="text"
-                            placeholder="用户名"
-                            v-model="form.username"
-                            auto-complete="off"></el-input>
-                    </el-form-item>
-                    <el-form-item prop="password">
-                        <el-input
-                            type="password"
-                            placeholder="密码"
-                            v-model="form.password"
-                            auto-complete="off"></el-input>
-                    </el-form-item>
-                    <el-form-item>
-                        <el-button
-                            type="primary"
-                            class="btn-login"
-                            @click="loginOpretion()">登录</el-button>
-                    </el-form-item>
-                </el-form>
-            </div>
-        </div>
-        <div class="footer">Copyright@一座岛</div>
+  <div v-loading="loading" class="login-container">
+    <div class="footer"/>
+    <div class="content">
+      <div class="login-form-container">
+        <el-form
+          ref="form"
+          :rules="rules"
+          :model="form"
+          status-icon
+          label-width="0">
+          <el-form-item>
+            <h2 class="title">通用平台</h2>
+          </el-form-item>
+          <el-form-item prop="username">
+            <el-input
+              v-model="form.username"
+              type="text"
+              placeholder="用户名"
+              auto-complete="off"/>
+          </el-form-item>
+          <el-form-item prop="password">
+            <el-input
+              v-model="form.password"
+              type="password"
+              placeholder="密码"
+              auto-complete="off"/>
+          </el-form-item>
+          <el-form-item>
+            <el-button
+              type="primary"
+              class="btn-login"
+              @click="loginOpretion()">登录</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
     </div>
+    <div class="footer">Copyright@一座岛</div>
+  </div>
 </template>
 
 <script>
@@ -44,7 +44,7 @@
 // import md5 from 'md5'
 
 export default {
-  data () {
+  data() {
     return {
       form: {
         password: '',
@@ -53,16 +53,16 @@ export default {
       loading: false,
       rules: {
         password: [
-          {trigger: 'blur', required: true, message: '密码不能为空'}
+          { trigger: 'blur', required: true, message: '密码不能为空' }
         ],
         username: [
-          {trigger: 'blur', required: true, message: '用户名不能为空'}
+          { trigger: 'blur', required: true, message: '用户名不能为空' }
         ]
       }
     }
   },
   methods: {
-    loginOpretion () {
+    loginOpretion() {
       this.$router.replace('/tag')
       // this.$refs.form.validate(valid => {
       //   if (valid) {

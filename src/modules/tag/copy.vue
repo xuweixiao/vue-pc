@@ -1,256 +1,255 @@
 <template>
-    <div class="main-container">
+  <div class="main-container">
 
-        <container-title :titleText="'标注中心'">
-            <el-radio-group
-                @change="scaleRadio"
-                v-model="scale"
-                style="margin-right:10px"
-                size="small">
-                <el-radio-button label="原图"></el-radio-button>
-                <el-radio-button label="放大图"></el-radio-button>
-            </el-radio-group>
-            <el-button
-                style="margin-right:10px"
-                type="warning" @click="dialogFormVisible = true">上传照片</el-button>
-            <el-button type="primary" @click="save">保存</el-button>
-        </container-title>
+    <container-title :title-text="'标注中心'">
+      <el-radio-group
+        v-model="scale"
+        style="margin-right:10px"
+        size="small"
+        @change="scaleRadio">
+        <el-radio-button label="原图"/>
+        <el-radio-button label="放大图"/>
+      </el-radio-group>
+      <el-button
+        style="margin-right:10px"
+        type="warning"
+        @click="dialogFormVisible = true">上传照片</el-button>
+      <el-button type="primary" @click="save">保存</el-button>
+    </container-title>
 
-        <div class="main-container-content" v-loading="AllLoading">
-            <el-row :gutter="20">
-                <!-- 列表 -->
-                <el-col :span="6">
-                    <el-table
-                        border
-                        highlight-current-row
-                        @row-click="rowTagClick"
-                        :data="tagsList">
-                        <el-table-column
-                            label="图片ID"
-                            prop="id"
-                            align="center"
-                            :show-overflow-tooltip="true"
-                            fixed>
-                        </el-table-column>
-                        <el-table-column
-                            label="状态"
-                            align="center"
-                            fixed>
-                                <template slot-scope="scope">
-                                    <el-tag type="success" v-if="scope.row.status === 1">已标记</el-tag>
-                                    <el-tag type="info" v-if="scope.row.status === 2">未标记</el-tag>
-                                </template>
-                        </el-table-column>
-                    </el-table>
-                    <el-pagination
-                        background
-                        class="page-container"
-                        @current-change="handleCurrentChange"
-                        :current-page.sync="currentPage"
-                        :page-size="pageSize"
-                        v-if="listTotal !=0"
-                        layout="prev, pager, next"
-                        :total="listTotal">
-                    </el-pagination>
-                </el-col>
+    <div v-loading="AllLoading" class="main-container-content">
+      <el-row :gutter="20">
+        <!-- 列表 -->
+        <el-col :span="6">
+          <el-table
+            :data="tagsList"
+            border
+            highlight-current-row
+            @row-click="rowTagClick">
+            <el-table-column
+              :show-overflow-tooltip="true"
+              label="图片ID"
+              prop="id"
+              align="center"
+              fixed/>
+            <el-table-column
+              label="状态"
+              align="center"
+              fixed>
+              <template slot-scope="scope">
+                <el-tag v-if="scope.row.status === 1" type="success">已标记</el-tag>
+                <el-tag v-if="scope.row.status === 2" type="info">未标记</el-tag>
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-pagination
+            v-if="listTotal !=0"
+            :current-page.sync="currentPage"
+            :page-size="pageSize"
+            :total="listTotal"
+            background
+            class="page-container"
+            layout="prev, pager, next"
+            @current-change="handleCurrentChange"/>
+        </el-col>
 
-                <!-- 标注 -->
-                <el-col :span="18">
-                    <!-- 标注图片 -->
-                  <div
-                      :style="{height: (screenHeight/3 *2) +'px'}"
-                      ref="tagImgContainer"
-                      class="tag-img-contianer"
-                      v-loading="loading">
-                      <img
-                            src=""
-                            class="tag-img"
-                            ref="topImg"
-                            @error="loading = false"
-                            id="topImg">
-                      <div
-                            class="biaoDiv"
-                            ref="tagId"
-                            @mousedown="mousedown"
-                            @mousemove="mousemove"
-                            @mouseup="mouseup">
-                            <div
-                                :key="item.id"
-                                class="line"
-                                :id="item.id"
-                                @keyup="moveLeft($event)"
-                                v-bind:class="{selectLine:item.id==isActive}"
-                                @click="lineClick(item.id)"
-                                :style="{height:item.h+'px',width:item.w+'px',left:item.x+'px',top:item.y+'px'}"
-                                v-for="item in tagIngList">
-                                    <i class="el-icon-remove tab-delete pointer" @click="deleteTagLine(item.id)"></i>
-                            </div>
-                      </div>
-
-                      <el-dialog
-                          width="250px"
-                          :style="{left:tagLeft+'px',top:tagTop+'px'}"
-                          :modal="true"
-                          :close-on-click-modal="false"
-                          class="tagDialog"
-                          :show-close="false"
-                          :append-to-body="false"
-                          :visible.sync="dialogTagVisible">
-                          <el-form
-                              ref="form"
-                              :model="form"
-                              label-width="40px">
-                              <el-form-item
-                                  label="内容"
-                                  prop="t">
-                                  <el-input
-                                      placeholder="标注内容"
-                                      clearable
-                                      v-model="form.t"
-                                      autocomplete="off"></el-input>
-                              </el-form-item>
-                          </el-form>
-                          <div slot="footer" class="dialog-footer">
-                              <el-button @click="dialogTagVisible=false">取 消</el-button>
-                              <el-button type="primary" @click="tagDiaglogSure">确 定</el-button>
-                          </div>
-                      </el-dialog>
-                  </div>
-
-                  <!-- 标注列表 -->
-                  <div class="tag-content-contianer">
-                       <el-table
-                            border
-                            highlight-current-row
-                            @row-click="rowLineClick"
-                            :height="screenHeight/3"
-                            :data="tagIngList">
-                            <el-table-column
-                                label="标注"
-                                prop="t"
-                                align="center"
-                                :show-overflow-tooltip="true"
-                                fixed>
-                                <template slot-scope="scope">
-                                  <el-input
-                                    v-if="scope.row.type"
-                                    v-model="scope.row.nt"></el-input>
-                                  <span v-else>{{scope.row.t}}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column
-                                label="X坐标"
-                                prop="x"
-                                align="center"
-                                :show-overflow-tooltip="true">
-                                <template slot-scope="scope">
-                                  <el-input
-                                    v-if="scope.row.type"
-                                    v-model="scope.row.x"></el-input>
-                                  <span v-else>{{scope.row.x}}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column
-                                label="Y坐标"
-                                prop="y"
-                                align="center"
-                                :show-overflow-tooltip="true">
-                                <template slot-scope="scope">
-                                  <el-input
-                                    v-if="scope.row.type"
-                                    v-model="scope.row.y"></el-input>
-                                  <span v-else>{{scope.row.y}}</span>
-                                </template>
-                            </el-table-column>
-                             <el-table-column
-                                label="宽"
-                                prop="w"
-                                align="center"
-                                :show-overflow-tooltip="true">
-                                 <template slot-scope="scope">
-                                  <el-input
-                                    v-if="scope.row.type"
-                                    v-model="scope.row.w"></el-input>
-                                  <span v-else>{{scope.row.w}}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column
-                                label="高"
-                                prop="h"
-                                align="center"
-                                :show-overflow-tooltip="true">
-                                 <template slot-scope="scope">
-                                <el-input
-                                    v-if="scope.row.type"
-                                    v-model="scope.row.h"></el-input>
-                                  <span v-else>{{scope.row.h}}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column
-                                label="操作"
-                                align="center">
-                                <template slot-scope="scope">
-                                   <el-button
-                                        type="text"
-                                        size="small"
-                                        v-if="scope.row.type"
-                                        @click="saveRow(scope.row)">保存</el-button>
-                                    <el-button
-                                        type="text"
-                                        size="small"
-                                        v-else
-                                        @click="scope.row.type=true">编辑</el-button>
-                                    <el-button
-                                        type="text"
-                                        size="small"
-                                        @click="deleteRow(scope.row)">删除</el-button>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                  </div>
-                </el-col>
-            </el-row>
-        </div>
-
-        <!-- 上传图片 -->
-        <el-dialog
-            title="上传单据"
-            width="400px"
-            :visible.sync="dialogFormVisible">
-                <el-upload
-                    class="upload-demo"
-                    action="/label/uploadSheet"
-                    name="file"
-                    :on-change="fileChange"
-                    :before-remove="beforeRemove"
-                    :limit="1"
-                    :auto-upload="false"
-                    :with-credentials="true"
-                    :on-exceed="handleExceed">
-                    <el-button size="small" type="primary">点击上传</el-button>
-                    <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
-                </el-upload>
-            <div slot="footer" class="dialog-footer">
-                <el-button @click="dialogFormVisible = false">取 消</el-button>
-                <el-button
-                    type="primary"
-                    @click="dialogUpImageSure">确 定</el-button>
+        <!-- 标注 -->
+        <el-col :span="18">
+          <!-- 标注图片 -->
+          <div
+            v-loading="loading"
+            ref="tagImgContainer"
+            :style="{height: (screenHeight/3 *2) +'px'}"
+            class="tag-img-contianer">
+            <img
+              id="topImg"
+              ref="topImg"
+              src=""
+              class="tag-img"
+              @error="loading = false">
+            <div
+              ref="tagId"
+              class="biaoDiv"
+              @mousedown="mousedown"
+              @mousemove="mousemove"
+              @mouseup="mouseup">
+              <div
+                v-for="item in tagIngList"
+                :key="item.id"
+                :id="item.id"
+                :class="{selectLine:item.id==isActive}"
+                :style="{height:item.h+'px',width:item.w+'px',left:item.x+'px',top:item.y+'px'}"
+                class="line"
+                @keyup="moveLeft($event)"
+                @click="lineClick(item.id)">
+                <i class="el-icon-remove tab-delete pointer" @click="deleteTagLine(item.id)"/>
+              </div>
             </div>
-        </el-dialog>
 
+            <el-dialog
+              :style="{left:tagLeft+'px',top:tagTop+'px'}"
+              :modal="true"
+              :close-on-click-modal="false"
+              :show-close="false"
+              :append-to-body="false"
+              :visible.sync="dialogTagVisible"
+              width="250px"
+              class="tagDialog">
+              <el-form
+                ref="form"
+                :model="form"
+                label-width="40px">
+                <el-form-item
+                  label="内容"
+                  prop="t">
+                  <el-input
+                    v-model="form.t"
+                    placeholder="标注内容"
+                    clearable
+                    autocomplete="off"/>
+                </el-form-item>
+              </el-form>
+              <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogTagVisible=false">取 消</el-button>
+                <el-button type="primary" @click="tagDiaglogSure">确 定</el-button>
+              </div>
+            </el-dialog>
+          </div>
+
+          <!-- 标注列表 -->
+          <div class="tag-content-contianer">
+            <el-table
+              :height="screenHeight/3"
+              :data="tagIngList"
+              border
+              highlight-current-row
+              @row-click="rowLineClick">
+              <el-table-column
+                :show-overflow-tooltip="true"
+                label="标注"
+                prop="t"
+                align="center"
+                fixed>
+                <template slot-scope="scope">
+                  <el-input
+                    v-if="scope.row.type"
+                    v-model="scope.row.nt"/>
+                  <span v-else>{{ scope.row.t }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                :show-overflow-tooltip="true"
+                label="X坐标"
+                prop="x"
+                align="center">
+                <template slot-scope="scope">
+                  <el-input
+                    v-if="scope.row.type"
+                    v-model="scope.row.x"/>
+                  <span v-else>{{ scope.row.x }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                :show-overflow-tooltip="true"
+                label="Y坐标"
+                prop="y"
+                align="center">
+                <template slot-scope="scope">
+                  <el-input
+                    v-if="scope.row.type"
+                    v-model="scope.row.y"/>
+                  <span v-else>{{ scope.row.y }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                :show-overflow-tooltip="true"
+                label="宽"
+                prop="w"
+                align="center">
+                <template slot-scope="scope">
+                  <el-input
+                    v-if="scope.row.type"
+                    v-model="scope.row.w"/>
+                  <span v-else>{{ scope.row.w }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                :show-overflow-tooltip="true"
+                label="高"
+                prop="h"
+                align="center">
+                <template slot-scope="scope">
+                  <el-input
+                    v-if="scope.row.type"
+                    v-model="scope.row.h"/>
+                  <span v-else>{{ scope.row.h }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="操作"
+                align="center">
+                <template slot-scope="scope">
+                  <el-button
+                    v-if="scope.row.type"
+                    type="text"
+                    size="small"
+                    @click="saveRow(scope.row)">保存</el-button>
+                  <el-button
+                    v-else
+                    type="text"
+                    size="small"
+                    @click="scope.row.type=true">编辑</el-button>
+                  <el-button
+                    type="text"
+                    size="small"
+                    @click="deleteRow(scope.row)">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </el-col>
+      </el-row>
     </div>
+
+    <!-- 上传图片 -->
+    <el-dialog
+      :visible.sync="dialogFormVisible"
+      title="上传单据"
+      width="400px">
+      <el-upload
+        :on-change="fileChange"
+        :before-remove="beforeRemove"
+        :limit="1"
+        :auto-upload="false"
+        :with-credentials="true"
+        :on-exceed="handleExceed"
+        class="upload-demo"
+        action="/label/uploadSheet"
+        name="file">
+        <el-button size="small" type="primary">点击上传</el-button>
+        <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+      </el-upload>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button
+          type="primary"
+          @click="dialogUpImageSure">确 定</el-button>
+      </div>
+    </el-dialog>
+
+  </div>
 </template>
 
 <script>
-import {tagList, upImage, tagDetail, saveTag} from './request.js'
+import { tagList, upImage, tagDetail, saveTag } from './request.js'
 import ContainerTitle from '@/common/components/ContainerTitle.vue'
 import clientHeight from '@/common/mixins/clientHeight'
 const baseUrl = 'http://139.129.205.233:17676'
 
 export default {
-  components: {ContainerTitle},
+  components: { ContainerTitle },
   mixins: [clientHeight],
-  data () {
+  data() {
     return {
       loading: false,
       tagsList: [],
@@ -286,10 +285,10 @@ export default {
     }
   },
   watch: {
-    screenHeight (val) {
+    screenHeight(val) {
     }
   },
-  mounted () {
+  mounted() {
     this.getTagList()
 
     document.onkeydown = (e) => {
@@ -333,9 +332,9 @@ export default {
     /**
      * 标注内容弹框确认
      */
-    tagDiaglogSure () {
+    tagDiaglogSure() {
       this.dialogTagVisible = false
-      let val = this.tagIngList[this.tagIngList.length - 1]
+      const val = this.tagIngList[this.tagIngList.length - 1]
       val.t = this.form.t
       this.$set(this.tagIngList, this.tagIngList.length - 1, val)
       this.form.t = ''
@@ -343,7 +342,7 @@ export default {
     /**
      * 方向键移动框
      */
-    changeLineData (director) {
+    changeLineData(director) {
       console.log()
       let x = 0
       let y = 0
@@ -379,13 +378,13 @@ export default {
     /**
      * 框点击
      */
-    lineClick (id) {
+    lineClick(id) {
       this.isActive = id
     },
     /**
      * 放大缩小
      */
-    scaleRadio () {
+    scaleRadio() {
       console.log(this.scale)
       if (this.scale === '原图') {
         this.orginImage(0.5)
@@ -396,7 +395,7 @@ export default {
     /**
     *上传标注数据
      */
-    save () {
+    save() {
       this.AllLoading = true
       let ret = []
       if (this.scale === '原图') {
@@ -410,7 +409,7 @@ export default {
       } else {
         ret = this.tagIngList
       }
-      let params = {
+      const params = {
         sid: this.sid,
         labelContent: JSON.stringify(ret)
       }
@@ -434,7 +433,7 @@ export default {
     /**
    * 放大图
    */
-    scaleChange (val) {
+    scaleChange(val) {
       console.log(this.oriImgWidht, '比例', this.oriImgHeight)
       this.$refs.topImg.style.height = this.oriImgHeight + 'px'
       this.$refs.tagId.style.height = this.oriImgHeight + 'px'
@@ -452,7 +451,7 @@ export default {
     /**
    * 原图
    */
-    orginImage (val) {
+    orginImage(val) {
       this.$refs.topImg.style.height = this.oriImgHeight * val + 'px'
       this.$refs.tagId.style.height = this.oriImgHeight * val + 'px'
       this.$refs.topImg.style.width = this.oriImgWidht * val + 'px'
@@ -469,16 +468,16 @@ export default {
     /**
      * 切换页
      */
-    handleCurrentChange (val) {
+    handleCurrentChange(val) {
       this.currentPage = val
       this.getTagList()
     },
     /**
      * 标注列表
      */
-    getTagList () {
+    getTagList() {
       this.loading = true
-      let params = {
+      const params = {
         pageCount: this.currentPage,
         size: this.pageSize
       }
@@ -498,7 +497,7 @@ export default {
         })
     },
 
-    dialogTagClose () {
+    dialogTagClose() {
       this.dialogTagVisible = false
       this.tagIngList = this.tagIngList.map(res => {
         if (res.id !== this.curTagLine.id) {
@@ -506,13 +505,13 @@ export default {
         }
       })
     },
-    dialogTagSure () {
+    dialogTagSure() {
       this.dialogTagVisible = false
     },
     /**
     *标注列表保存
      */
-    saveRow (obj) {
+    saveRow(obj) {
       obj.t = obj.nt
       obj.type = false
       this.tagIngList.forEach((value, index) => {
@@ -524,7 +523,7 @@ export default {
     /**
     * 删除标注
      */
-    deleteRow (obj) {
+    deleteRow(obj) {
       this.tagIngList.forEach((value, index) => {
         if (value.id === obj.id) {
           this.tagIngList.splice(index, 1)
@@ -534,15 +533,15 @@ export default {
     /**
      * 选择图片改变事件
      */
-    fileChange (file, fileList) {
+    fileChange(file, fileList) {
       this.file = file
     },
     /**
      * 上传图片
      */
-    dialogUpImageSure () {
+    dialogUpImageSure() {
       this.loading = true
-      let param = new FormData() // 创建form对象
+      const param = new FormData() // 创建form对象
       param.append('file', this.file.raw) // 通过append向form对象添加数据
       upImage(param)
         .then(res => {
@@ -563,26 +562,26 @@ export default {
     /**
      * 图片限制
      */
-    handleExceed (files, fileList) {
+    handleExceed(files, fileList) {
       this.$message.warning(`当前限制选择 1 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`)
     },
     /**
      * 图片移除
      */
-    beforeRemove (file, fileList) {
+    beforeRemove(file, fileList) {
       return this.$confirm(`确定移除 ${file.name}？`)
     },
     /**
      * 获取标注详情
      */
-    getTagDetailOpration (val) {
+    getTagDetailOpration(val) {
       this.tagIngList = []
       this.isActive = false
       this.scale = '原图'
       this.shiftDown = false
       this.loading = true
       this.sid = val.id
-      let params = {
+      const params = {
         sid: val.id
       }
       tagDetail(params)
@@ -604,7 +603,7 @@ export default {
               this.tagIngList = []
             }
 
-            let obj = document.getElementById('topImg')
+            const obj = document.getElementById('topImg')
             this.oriImgWidht = res.data.data.width
             this.oriImgHeight = res.data.data.height
             this.orginImage(0.5)
@@ -624,20 +623,20 @@ export default {
     /**
      * 行点击
      */
-    rowTagClick (row) {
+    rowTagClick(row) {
       this.getTagDetailOpration(row)
     },
     /**
      *标线框table点击
      */
-    rowLineClick (row) {
+    rowLineClick(row) {
       this.isActive = row.id
       this.clickLine = row
     },
     /**
      * 删除标注线
      */
-    deleteTagLine (id) {
+    deleteTagLine(id) {
       this.dialogTagVisible = false
       this.form.t = ''
       for (let i = 0; i < this.tagIngList.length; i++) {
@@ -651,7 +650,7 @@ export default {
     /**
      * 画框开始
      */
-    mousedown (event) {
+    mousedown(event) {
       this.mDownX = event.layerX
       this.mDownY = event.layerY
       this.form.t = ''
@@ -662,7 +661,7 @@ export default {
     /**
     * 画框过程
     */
-    mousemove (event) {
+    mousemove(event) {
       if (this.mDown) {
         if (this.firstMove) {
           if (this.tagIngList.length === 0) {
@@ -683,16 +682,16 @@ export default {
           this.mMove = true
         }
         this.firstMove = false
-        let x = event.layerX
-        let y = event.layerY
-        let id = this.tagIngList[this.tagIngList.length - 1].id
-        this.$set(this.tagIngList, this.tagIngList.length - 1, {id: id, w: x - this.mDownX - 2, h: y - this.mDownY - 2, x: this.mDownX, y: this.mDownY, type: false})
+        const x = event.layerX
+        const y = event.layerY
+        const id = this.tagIngList[this.tagIngList.length - 1].id
+        this.$set(this.tagIngList, this.tagIngList.length - 1, { id: id, w: x - this.mDownX - 2, h: y - this.mDownY - 2, x: this.mDownX, y: this.mDownY, type: false })
       }
     },
     /**
      * 画框结束
      */
-    mouseup (event) {
+    mouseup(event) {
       this.mDown = false
       this.firstMove = true
       if (this.mMove) {
@@ -704,7 +703,7 @@ export default {
     /**
      * 键盘左移动
      */
-    moveLeft (ev) {
+    moveLeft(ev) {
       console.log('ddd')
     }
   }

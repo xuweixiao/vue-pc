@@ -1,27 +1,27 @@
 <template>
-    <header>
-        <div class="pull-left logo-container poiner">
-             <img
-                class="poiner exit logo"
-                src="@/assets/img/logo.jpg" >
-        </div>
-        <div class="top-intro-container">
-            <div class="pull-left">测试</div>
-            <div class="pull-right">
-                 <img
-                    @click="logoutOpration"
-                    class="poiner exit logout"
-                    src="@/assets/img/logout.png" >
-            </div>
-        </div>
-    </header>
+  <header>
+    <div class="pull-left logo-container poiner">
+      <img
+        class="poiner exit logo"
+        src="@/assets/img/logo.jpg" >
+    </div>
+    <div class="top-intro-container">
+      <div class="pull-left">测试</div>
+      <div class="pull-right">
+        <img
+          class="poiner exit logout"
+          src="@/assets/img/logout.png"
+          @click="logoutOpration" >
+      </div>
+    </div>
+  </header>
 </template>
 
 <script>
-import {get} from '@/common/net/serviceUtil'
+import { get } from '@/common/net/serviceUtil'
 export default {
   methods: {
-    logoutOpration () {
+    logoutOpration() {
       get('user/logout')
         .then(res => {
           this.$router.replace('/login')

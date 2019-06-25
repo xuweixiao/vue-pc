@@ -1,11 +1,11 @@
 <template>
-    <div class="container-title">
-        <div class="text">{{titleText}}</div>
-        <div class="left-content">
-            <slot name="leftBtn"></slot>
-        </div>
-        <div class="content"><slot></slot></div>
+  <div class="container-title">
+    <div class="text">{{ titleText }}</div>
+    <div class="left-content">
+      <slot name="leftBtn"/>
     </div>
+    <div class="content"><slot/></div>
+  </div>
 </template>
 
 <script>
@@ -13,7 +13,8 @@ export default {
   props: {
     titleText: {
       type: String,
-      require: true
+      require: true,
+      default: ''
     }
   }
 }
